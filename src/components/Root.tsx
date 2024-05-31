@@ -1,49 +1,43 @@
-import { SDKProvider, useLaunchParams } from '@tma.js/sdk-react';
-import { TonConnectUIProvider } from '@tonconnect/ui-react';
-import { type FC, useEffect, useMemo } from 'react';
+import { useBackButton, useMainButton } from '@tma.js/sdk-react';
+import React, { FC, useEffect, useState } from 'react';
 
-import { App } from '@/components/App.tsx';
-import { ErrorBoundary } from '@/components/ErrorBoundary.tsx';
 
-const ErrorBoundaryError: FC<{ error: unknown }> = ({ error }) => (
-  <div>
-    <p>An unhandled error occurred:</p>
-    <blockquote>
-      <code>
-        {error instanceof Error
-          ? error.message
-          : typeof error === 'string'
-            ? error
-            : JSON.stringify(error)}
-      </code>
-    </blockquote>
-  </div>
-);
+export const Root: FC = () => {
+    const mainButton = useMainButton();
+    const backButton = useBackButton();
+    const [counter, setCounter] = useState(0);
 
-const Inner: FC = () => {
-  const debug = useLaunchParams().startParam === 'debug';
-  const manifestUrl = useMemo(() => {
-    return new URL('tonconnect-manifest.json', window.location.href).toString();
-  }, []);
+    useEffect(() => {
+        return mainButton.on('click', () => {
+            setCounter((prev) => prev + 1);
+            if (!backButton.isVisible) {
+                backButton.show();
+            }
+        });
+    }, [mainButton]);
 
-  // Enable debug mode to see all the methods sent and events received.
-  useEffect(() => {
-    if (debug) {
-      import('eruda').then((lib) => lib.default.init());
-    }
-  }, [debug]);
+    useEffect(() => {
+        return backButton.on('click', () => {
+            setCounter((prev) => {
+                const nextCounter = prev - 1;
+                if (nextCounter <= 0) {
+                    backButton.hide();
+                    return 0;
+                }
+                return nextCounter;
+            });
+        });
+    }, [backButton]);
 
-  return (
-    <TonConnectUIProvider manifestUrl={manifestUrl}>
-      <SDKProvider acceptCustomStyles debug={debug}>
-        <App/>
-      </SDKProvider>
-    </TonConnectUIProvider>
-  );
-};
+    mainButton
+        .setText(`Counter: ${counter}`)
+        .enable()
+        .show();
 
-export const Root: FC = () => (
-  <ErrorBoundary fallback={ErrorBoundaryError}>
-    <Inner/>
-  </ErrorBoundary>
-);
+    return (
+        <>
+            <h2>Hello</h2>
+            <div>Counter: {counter}</div>
+        </>
+    );
+}
