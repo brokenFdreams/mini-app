@@ -1,9 +1,7 @@
 import { ComponentType } from "react";
-import { Base } from "../components/base/Base";
-import { Counter } from "../components/counter/Counter";
-import { Hello } from "../components/hello/Hello";
-
-
+import { HomePage } from "../components/home/HomePage";
+import { LearnPage } from "../components/learn/LearnPage";
+import { SettingsPage } from "../components/settings/SettingsPage";
 
 interface Route {
     path: string;
@@ -12,7 +10,7 @@ interface Route {
 }
 
 export const routes: Route[] = [
-    { path: '/', Component: Base, title: 'Base component' },
-    { path: '/hello', Component: Hello, title: 'Hello componet' },
-    { path: '/counter', Component: Counter, title: 'Counter component' }
+    { path: '/', Component: HomePage, title: 'Home page' },
+    { path: '/learn', Component: LearnPage, title: 'Learn page' },
+    { path: '/settings', Component: SettingsPage, title: 'Settings page' }
 ];
