@@ -1,6 +1,6 @@
 import { AppRoot } from '@telegram-apps/telegram-ui';
 import { useIntegration } from '@tma.js/react-router-integration';
-import { bindMiniAppCSSVars, bindThemeParamsCSSVars, bindViewportCSSVars, initNavigator, useLaunchParams, useMiniApp, useSettingsButton, useThemeParams, useViewport } from '@tma.js/sdk-react';
+import { bindMiniAppCSSVars, bindThemeParamsCSSVars, bindViewportCSSVars, initNavigator, useBackButton, useLaunchParams, useMiniApp, useSettingsButton, useThemeParams, useViewport } from '@tma.js/sdk-react';
 import React, { useEffect, useMemo, type FC } from 'react';
 import { Navigate, Route, Router, Routes } from 'react-router-dom';
 import { routes } from '../navigation/routes';
@@ -39,6 +39,11 @@ export const App: FC = () => {
             navigator.push('/settings');
         });
     }, [settingsButton]);
+
+    const backButton = useBackButton();
+    useEffect(() => backButton.on('click', () => {
+        navigator.push('/');
+    }), [backButton]);
 
     return (
         <AppRoot

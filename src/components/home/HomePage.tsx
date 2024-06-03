@@ -1,11 +1,11 @@
-import { Cell, List, Section } from '@telegram-apps/telegram-ui';
-import { useMainButton } from '@tma.js/sdk-react';
+import { useBackButton, useMainButton } from '@tma.js/sdk-react';
 import React, { FC, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Link } from '../link/Link';
 
 
 export const HomePage: FC = () => {
+    useBackButton().hide();
+
     const mainButton = useMainButton();
     mainButton
         .enable()
