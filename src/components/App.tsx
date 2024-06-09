@@ -1,11 +1,24 @@
-import { AppRoot } from '@telegram-apps/telegram-ui';
-import { useIntegration } from '@tma.js/react-router-integration';
-import { bindMiniAppCSSVars, bindThemeParamsCSSVars, bindViewportCSSVars, initNavigator, useBackButton, useLaunchParams, useMiniApp, useSettingsButton, useThemeParams, useViewport } from '@tma.js/sdk-react';
-import React, { useEffect, useMemo, type FC } from 'react';
-import { Navigate, Route, Router, Routes } from 'react-router-dom';
-import { routes } from '../navigation/routes';
+import {AppRoot} from '@telegram-apps/telegram-ui';
+import {useIntegration} from '@tma.js/react-router-integration';
+import {
+    bindMiniAppCSSVars,
+    bindThemeParamsCSSVars,
+    bindViewportCSSVars,
+    initNavigator,
+    useBackButton,
+    useLaunchParams,
+    useMiniApp,
+    useSettingsButton,
+    useThemeParams,
+    useViewport
+} from '@tma.js/sdk-react';
+import React, {type FC, useEffect, useMemo} from 'react';
+import {Navigate, Route, Router, Routes} from 'react-router-dom';
+import {routes} from '../navigation/routes';
+import eruda from 'eruda';
 
 export const App: FC = () => {
+    eruda.init()
     const lp = useLaunchParams();
     const miniApp = useMiniApp();
     const themeParams = useThemeParams();
@@ -53,7 +66,7 @@ export const App: FC = () => {
             <Router location={location} navigator={reactNavigator}>
                 <Routes>
                     {routes.map((route) => <Route key={route.path} {...route} />)}
-                    <Route path='*' element={<Navigate to='/' />} />
+                    <Route path='*' element={<Navigate to='/'/>}/>
                 </Routes>
             </Router>
         </AppRoot>
