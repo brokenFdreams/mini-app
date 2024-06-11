@@ -18,11 +18,21 @@ import {routes} from '../navigation/routes';
 import eruda from 'eruda';
 
 export const App: FC = () => {
-    eruda.init()
     const lp = useLaunchParams();
     const miniApp = useMiniApp();
     const themeParams = useThemeParams();
     const viewport = useViewport();
+
+    const navigator = useMemo(() => initNavigator('app-navigation-state'), []);
+    const [location, reactNavigator] = useIntegration(navigator);
+
+    const settingsButton = useSettingsButton();
+    const backButton = useBackButton();
+
+    useEffect(() => {
+        eruda.init();
+        settingsButton.show();
+    }, []);
 
     useEffect(() => {
         return bindMiniAppCSSVars(miniApp, themeParams);
@@ -36,16 +46,10 @@ export const App: FC = () => {
         return viewport && bindViewportCSSVars(viewport);
     }, [viewport]);
 
-    const navigator = useMemo(() => initNavigator('app-navigation-state'), []);
-    const [location, reactNavigator] = useIntegration(navigator);
-
     useEffect(() => {
         navigator.attach();
         return () => navigator.detach();
     }, [navigator])
-
-    const settingsButton = useSettingsButton();
-    settingsButton.show();
 
     useEffect(() => {
         settingsButton.on('click', () => {
@@ -53,7 +57,6 @@ export const App: FC = () => {
         });
     }, [settingsButton]);
 
-    const backButton = useBackButton();
     useEffect(() => backButton.on('click', () => {
         navigator.push('/');
     }), [backButton]);

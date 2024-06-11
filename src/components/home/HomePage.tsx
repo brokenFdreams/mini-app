@@ -4,15 +4,17 @@ import { useNavigate } from 'react-router-dom';
 
 
 export const HomePage: FC = () => {
-    useBackButton().hide();
-
+    const backButton = useBackButton();
     const mainButton = useMainButton();
-    mainButton
-        .enable()
-        .show()
-        .setText('Learn cards');
-
     const navigator = useNavigate();
+
+    useEffect(() => {
+        backButton.hide();
+        mainButton
+            .enable()
+            .show()
+            .setText('Learn cards');
+    }, [])
 
     useEffect(() => mainButton.on('click', () => {
         navigator('/learn');
