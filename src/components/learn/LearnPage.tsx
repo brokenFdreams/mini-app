@@ -1,9 +1,9 @@
 import {useQuery} from "@tanstack/react-query";
 import {useBackButton, useMainButton} from "@tma.js/sdk-react";
-import axios from "axios";
+import axios, {AxiosError, AxiosResponse} from "axios";
 import React, {FC, useEffect, useState} from "react";
 
-const URL = 'http://10.164.16.83:8080/';
+const URL = 'https://memorizer-back.loca.lt/';
 
 export const LearnPage: FC = () => {
     const [cards, setCards] = useState<LearningCard[]>([])
@@ -22,11 +22,15 @@ export const LearnPage: FC = () => {
                 "Accept": "application/json",
                 "Accept-Encoding": "gzip, deflate, br",
                 "Connection": "keep-alive"
-            }
+            },
         })
-            .then((response) => {
+            .then((response: AxiosResponse) => {
                 console.log(`response: ${response.data}`)
                 return response.data
+            })
+            .catch((e: AxiosError) => {
+                console.error(`Error occured during API call. Status: ${e.response.status} ${e.response.statusText}. Message: ${e.response.data.message}`)
+                throw Error(e.response.data.message);
             })
     });
 
@@ -34,7 +38,7 @@ export const LearnPage: FC = () => {
         <>
             <div>Card to learn</div>
             <div>Data: {data?.toString()}</div>
-            <div>Error: {error?.toString()}</div>
+            <div>Error: {error?.message}</div>
             <div>Cards:</div>
             <ul>
                 {data?.map(card => <li key={card.id.toString()}>{card.sentence}</li>)}
