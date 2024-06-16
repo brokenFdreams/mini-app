@@ -17,6 +17,7 @@ export const LearnPage: FC = () => {
 
     const {isLoading, data, error} = useQuery<LearningCard[]>({
         queryKey: ['learningCards'],
+        retry: false,
         queryFn: () => axios.get(URL + 'learning/web/cards/error', {
             headers: {
                 "Accept": "application/json",
