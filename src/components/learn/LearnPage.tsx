@@ -15,34 +15,32 @@ export const LearnPage: FC = () => {
         backButton.show();
     }, []);
 
-    const {isLoading, data, error} = useQuery<LearningCard[]>({
+    const {error} = useQuery({
         queryKey: ['learningCards'],
         retry: false,
-        queryFn: () => axios.get(URL + 'learning/web/cards/error', {
+        queryFn: () => axios.get(URL + 'learning/web/cards/en/for/ru', {
             headers: {
-                "Accept": "application/json",
-                "Accept-Encoding": "gzip, deflate, br",
-                "Connection": "keep-alive"
+                "Accept": "application/json"
             },
         })
             .then((response: AxiosResponse) => {
-                console.log(`response: ${response.data}`)
-                return response.data
+                setCards(response.data);
+                return response.data;
             })
             .catch((e: AxiosError) => {
-                console.error(`Error occured during API call. Status: ${e.response.status} ${e.response.statusText}. Message: ${e.response.data.message}`)
-                throw Error(e.response.data.message);
+                console.error(`Error occured during API call. Status: ${e.response.status} ${e.response.statusText}. Message: ${e.response.data['message']}`)
+                throw Error(e.response.data['message']);
             })
     });
 
     return (
         <>
             <div>Card to learn</div>
-            <div>Data: {data?.toString()}</div>
+            <div>Data: {cards?.toString()}</div>
             <div>Error: {error?.message}</div>
             <div>Cards:</div>
             <ul>
-                {data?.map(card => <li key={card.id.toString()}>{card.sentence}</li>)}
+                {cards?.map(card => <li key={card.id.toString()}>{card.sentence}</li>)}
             </ul>
         </>
     );
