@@ -1,6 +1,7 @@
 import {useQuery} from '@tanstack/react-query';
-import {useBackButton, useLaunchParams, useMainButton} from '@tma.js/sdk-react';
-import React, {FC, useEffect, useState} from 'react';
+import {useBackButton, useCloudStorage, useLaunchParams, useMainButton} from '@tma.js/sdk-react';
+import axios, {AxiosError, AxiosResponse} from 'axios';
+import React, {ChangeEvent, ChangeEventHandler, FC, useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 
 const URL = 'https://memorizer-back.loca.lt/';
@@ -11,62 +12,78 @@ export const HomePage: FC = () => {
     const navigator = useNavigate();
     const lp = useLaunchParams();
     const [validated, setValidated] = useState<Validated>(new Validated(false));
+    const cloudStorage = useCloudStorage();
+    const [testCS, setTestCS] = useState<string>(null);
+    const [toSaveInCS, setToSaveInCS] = useState<string | null>(null);
 
     useEffect(() => {
-//        some(lp.initDataRaw);
         backButton.hide();
         mainButton
             .enable()
             .show()
             .setText('Learn cards');
+
+        cloudStorage.get('to-save')
+            .then((value) => {
+                console.log(`Recieved from TCS '${value}'`);
+                setTestCS(value);
+            });
+//        return () => {
+//            cloudStorage.delete('to-save')
+//            .then(() => console.log('to-save deleted'));
+//        }
     }, [])
+
+    useEffect(() => {
+        console.log(`Trying to save ${toSaveInCS}`);
+        const toSave = toSaveInCS?.toString();
+
+        cloudStorage.set('to-save', toSave)
+            .then(() => console.log(`'${toSave}' was saved`));
+
+        cloudStorage.get('to-save')
+            .then((value) => {
+                console.log(value);
+                console.log(value?.toLowerCase());
+                console.log(`Recieved from TCS '${value?.toString()}'`);
+                setTestCS(value);
+            });
+    }, [toSaveInCS])
 
     useQuery({
         queryKey: ['validation'],
         retry: false,
-        queryFn: () => fetch(URL + 'authorize', {
-                method: 'GET',
-                headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                    'TelegramInitData': JSON.stringify(lp.initData)
-                }
-            }
-        ).then((response) => {
-            return response.json();
-        }).then((validated) => {
-            console.log(`Response: ${validated}`);
-            setValidated(validated);
-            return validated;
-        }).catch((err) => {
-            console.error(`Error occured during API call. Status: ${err.response.status} ${err.response.statusText}. Message: ${err.response.data['message']}`);
-            throw Error(err.response.data['message']);
+        queryFn: () => axios.post(URL + 'authorize', {
+            headers: {
+                "Accept": "application/json",
+            },
+            body: lp.initData
         })
-//            axios.get(URL + 'authorize', {
-//            headers: {
-//                "Accept": "application/json",
-//                "TelegramInitData": JSON.stringify(lp.initData)
-//            },
-//        })
-//            .then((response: AxiosResponse) => {
-//                console.log(`Response: ${response.data}`);
-//                setValidated(response.data);
-//            })
-//            .catch((e: AxiosError) => {
-//                console.error(`Error occured during API call. Status: ${e.response.status} ${e.response.statusText}. Message: ${e.response.data['message']}`)
-//                throw Error(e.response.data['message']);
-//            })
+            .then((response: AxiosResponse) => {
+                console.log(`Response: ${response.data}`);
+                setValidated(response.data);
+            })
+            .catch((e: AxiosError) => {
+                console.error(`Error occured during API call. Status: ${e.response.status} ${e.response.statusText}. Message: ${e.response.data['message']}`)
+                throw Error(e.response.data['message']);
+            })
     });
 
     useEffect(() => mainButton.on('click', () => {
         navigator('/learn');
     }), [mainButton]);
 
+    const onChangeHandler: ChangeEventHandler = (event: ChangeEvent<Element>) => {
+        console.log(`value: ${event.target.value}`);
+        setToSaveInCS(event.target.value);
+    }
+
     return (
         <>
             <div>Home page</div>
             <div>Validated: {validated.validated}</div>
-            <input/>
+            <input onChange={onChangeHandler}/>
+            <div>CloudStorage value: {testCS}</div>
         </>
     );
 }
